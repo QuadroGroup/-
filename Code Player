@@ -1,0 +1,123 @@
+public class PlayerControler : MonoBehaviour
+{
+//обьявление ссылок на компоненты
+   public Rigidbody2D rb;//отвечает за физики
+    Animator animator;//отвечает за анимацию
+    public SpriteRenderer sprite;//отвечает за работу с картинкой например отображение
+     private bool checkRight = true;
+
+    [SerializeField]
+    int speed;//скорость движения
+    [SerializeField]
+    float jumpForce;//сила прыжка
+    [SerializeField]
+    public bool isGrounded = false;//переменная для проверки нахождения персонжа на земле
+    [SerializeField]
+    Transform groundCheck;//для проверки соприкосновени с землей
+
+    [SerializeField]
+    Transform upPoint;//точка проверяющая есть ли сверху земля
+    private bool cantStand;//переменная провряющая может ли игрок встать
+    public bool crouching;//проверяет находится ли игрок в приседе
+
+    public float checkRadius;
+    public LayerMask whatIsGround;
+ private void Start()
+    {//ссылки на компоненты
+        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
+ }
+  public void FixedUpdate()
+    {
+        cantStand = Physics2D.OverlapCircle(upPoint.position, checkRadius, 1 << LayerMask.NameToLayer("Ground"));
+        if (Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground")))//проверяем находится ли игрок на земле
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+
+        if (Input.GetKey(KeyCode.D))
+        {
+            rb.velocity = new Vector2(speed, rb.velocity.y);//физика игрока под воздействием вектора 2. Персонаж смещается только по x
+            if (isGrounded)
+                //animator.Play("Player_Run");
+                State = CharState.Player_Run;
+            sprite.flipX = false;
+            // transform.localScale = new Vector3(2.451736f, 2.467743f, 1);
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            rb.velocity = new Vector2(-speed, rb.velocity.y);//движение в противоположную сторону
+
+            if (isGrounded)
+                // animator.Play("Player_Run");
+                State = CharState.Player_Run;
+            
+            sprite.flipX = true;
+        }
+        else
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            if (isGrounded)
+                //animator.Play("Player_Idle");
+                State = CharState.Player_Idle;
+
+        }
+        if (Input.GetKey(KeyCode.W) && isGrounded == true)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);//прыжок
+                                                                //if (!isGrounded)
+                                                                // animator.Play("Player_Jump");
+            State = CharState.Player_Jump;
+        }
+        else if (!isGrounded)
+        {
+            State = CharState.Player_Jump;
+        }
+if ((Input.GetKey(KeyCode.C)|| cantStand == true) && isGrounded ==true )
+        {
+            // animator.Play("Player_Sit_Idle");
+            State = CharState.Player_Sit_Idle;
+
+            crouching = true;
+            if ( isGrounded == true && (joystick.Horizontal < 0 || joystick.Horizontal > 0/*Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)*/))
+            {
+                //animator.Play("Player_Sit");
+                State = CharState.Player_Sit;
+            }
+        }
+        else
+        {
+            crouching = false;
+        }
+        }
+ public void Sit()
+    {
+        if (cantStand == false && isGrounded == true)
+        {
+            // animator.Play("Player_Sit_Idle");
+            State = CharState.Player_Sit_Idle;
+            crouching = true;
+        }
+        else
+        {
+            crouching = false;
+        }
+    }
+    public CharState State
+    {
+        get { return (CharState)animator.GetInteger("State"); }//перезапись значеня положения
+        set { animator.SetInteger("State", (int)value); }//передача значения положения в аниматор
+    }
+}
+public enum CharState//перечисление возможных состояний игрока
+{
+    Player_Idle,
+    Player_Run,
+    Player_Jump,
+    Player_Sit, 
+}
