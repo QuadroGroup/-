@@ -1,0 +1,50 @@
+переключатель общественного класса: MonoBehaviour
+{
+public GameObject wall;//переменная для обьекта подьемна стена
+public bool close = false;//перемнная для проверки условия на закрытие двери
+
+public float UpWallPoint;//переменная отвечающая за точку до которой поднимаентся стена
+public float CloseWallPoint;//переменная которая отвечает за точку до которой опускается стена
+public float downWallPoint;//переменная которая отвечат за точку в которой знаение закрыть снова становится ложным
+
+public float downPoint;//переменная которая отвечает за точку кнопки в нажатом состоянии
+public float upPoint;//переменная отвечающая за возвращение кнопки в исходное состояние
+
+// Start is called before the first frame update
+void Start()
+{
+
+}
+
+// Update is called once per frame
+void Update()
+{
+    if (close == true && wall.transform.position.y > CloseWallPoint)
+    {
+        wall.transform.Translate(Vector2.down * Time.deltaTime);
+        if (wall.transform.position.y <= downWallPoint)
+        {
+            close = false;
+        }
+
+    }
+
+}
+
+public void OnTriggerStay2D(Collider2D collision)
+{
+    if ((collision.tag == "Player" || collision.tag == "Box") && transform.position.y > downPoint)
+    {
+        transform.Translate(Vector2.down * Time.deltaTime);
+    }
+    else if ((collision.tag == "Player"|| collision.tag == "Box") && wall.transform.position.y < UpWallPoint)
+    {
+        wall.transform.Translate(Vector2.up * Time.deltaTime);
+    }
+}
+public void OnTriggerExit2D(Collider2D collision)
+{
+    transform.position = new Vector2(transform.position.x, upPoint);
+    close = true;
+}
+}
