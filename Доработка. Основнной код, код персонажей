@@ -1,0 +1,264 @@
+public class PlayerControler : MonoBehaviour
+{
+
+    [SerializeField]
+    Transform monsterCheck;
+
+    private Transform plaform;
+
+    //обьявление ссылок на компоненты
+   public Rigidbody2D rb;//отвечает за физики
+    Animator animator;//отвечает за анимацию
+    public SpriteRenderer sprite;//отвечает за работу с картинкой например отображение
+    private Bullet bullet;
+    public Joystick joystick;
+
+    public int health;//текущие количество жизней
+    public int numberOffLives;//количество вердечек на данный момент
+    public Image[] lives;//максимально возможное количество жизней на уровне
+    public Sprite fulLive;//изображение целого сердца
+    public Sprite emptyLive;//изображение разбитого сердца
+
+
+
+    private bool checkRight = true;
+
+    [SerializeField]
+    int speed;//скорость движения
+    [SerializeField]
+    float jumpForce;//сила прыжка
+    [SerializeField]
+    public bool isGrounded = false;//переменная для проверки нахождения персонжа на земле
+    [SerializeField]
+    Transform groundCheck;//для проверки соприкосновени с землей
+
+    [SerializeField]
+    Transform upPoint;//точка проверяющая есть ли сверху земля
+    private bool cantStand;//переменная провряющая может ли игрок встать
+    public bool crouching;//проверяет находится ли игрок в приседе
+
+    public float checkRadius;
+    public LayerMask whatIsGround;
+
+    public int Lives
+    {
+        get { return health; }
+        set
+        {
+            if (value < 6)
+            {
+                health = value;//прверка на изменение количества жезней
+              
+            }
+            //livesBar.Refresh();//обновление шкалы жизней
+        }
+
+     
+    }
+    private void Start()
+    {//ссылки на компоненты
+        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
+        bullet = Resources.Load<Bullet>("Bullet");//подгружаем ссылку на пулю из папки
+
+    }
+   void Update()
+    {
+        if (health > numberOffLives)
+        {
+            health = numberOffLives;//текущее количество жизней не может превышать максимальное количество жизней на уровне
+        }
+        for (int i = 0; i < lives.Length; i++)
+        {
+            if (i < health)
+            {
+                lives[i].sprite = fulLive;//если i соответствую количеству жизней сердце целое
+            }
+            else
+            {
+                lives[i].sprite = emptyLive;
+            }
+           if (i < numberOffLives)
+            {
+                lives[i].enabled = true;
+            }
+           else
+            {
+                lives[i].enabled = false;
+            }
+
+           if (health == 0)
+            {
+                GameOver.GameIsDeath = true;
+            }
+           
+
+
+        }
+
+      //  if (Physics2D.Linecast(transform.position, monsterCheck.position, 1 << LayerMask.NameToLayer("Monster")))//проверяем пулю на столкновенние с монстром
+       // {
+           // Lives = health -1;//отнимается жизнь
+          //  rb.AddForce(/*transform.up * 6.0F,*/ transform.position*-3f, ForceMode2D.Impulse);//отбрасывает игрока при столкновении с вражеским обьектом
+       // }
+        
+    }
+    public void FixedUpdate()
+    {
+        cantStand = Physics2D.OverlapCircle(upPoint.position, checkRadius, 1 << LayerMask.NameToLayer("Ground"));
+        if (Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground")))//проверяем находится ли игрок на земле
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+
+        if (joystick.Horizontal > 0/*Input.GetKey(KeyCode.D)*/)
+        {
+            rb.velocity = new Vector2(speed, rb.velocity.y);//физика игрока под воздействием вектора 2. Персонаж смещается только по x
+            if (isGrounded)
+                //animator.Play("Player_Run");
+                State = CharState.Player_Run;
+            sprite.flipX = false;
+            // transform.localScale = new Vector3(2.451736f, 2.467743f, 1);
+        }
+        else if (joystick.Horizontal < 0/*Input.GetKey(KeyCode.A)*/)
+        {
+            rb.velocity = new Vector2(-speed, rb.velocity.y);//движение в противоположную сторону
+
+            if (isGrounded)
+                // animator.Play("Player_Run");
+                State = CharState.Player_Run;
+            
+            sprite.flipX = true;
+        }
+        else
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            if (isGrounded)
+                //animator.Play("Player_Idle");
+                State = CharState.Player_Idle;
+
+        }
+        if (joystick.Vertical >0 /*Input.GetKey(KeyCode.W)*/ && isGrounded == true)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);//прыжок
+                                                                //if (!isGrounded)
+                                                                // animator.Play("Player_Jump");
+            State = CharState.Player_Jump;
+        }
+        else if (!isGrounded)
+        {
+            State = CharState.Player_Jump;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            Vector3 position = transform.position; position.y += 0.8F;//определяем позицию создания пули
+            Bullet newBullet = Instantiate(bullet, position, bullet.transform.rotation) as Bullet;//создание пули в сцене
+
+            newBullet.Parent = gameObject;//сообщаем что у новой пули родитель текущей обьект игрок
+            newBullet.Direction = newBullet.transform.right * (sprite.flipX ? -1.0F : 1.0F);//задаем направление пулу в соответствии с направлением игрока
+            //animator.Play("Player_Shute");
+            State = CharState.Player_Shute;
+
+        }
+        if ((joystick.Vertical < -0.7/*Input.GetKey(KeyCode.C)*/|| cantStand == true) && isGrounded ==true )
+        {
+            // animator.Play("Player_Sit_Idle");
+            State = CharState.Player_Sit_Idle;
+
+            crouching = true;
+            if ( isGrounded == true && (joystick.Horizontal < 0 || joystick.Horizontal > 0/*Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)*/))
+            {
+                //animator.Play("Player_Sit");
+                State = CharState.Player_Sit;
+            }
+        }
+        else
+        {
+            crouching = false;
+        }
+        }
+    public void Shute()
+    {
+        Vector3 position = transform.position; position.y += 0.8F;//определяем позицию создания пули
+        Bullet newBullet = Instantiate(bullet, position, bullet.transform.rotation) as Bullet;//создание пули в сцене
+
+        newBullet.Parent = gameObject;//сообщаем что у новой пули родитель текущей обьект игрок
+        newBullet.Direction = newBullet.transform.right * (sprite.flipX ? -1.0F : 1.0F);//задаем направление пулу в соответствии с направлением игрока
+                                                                                        //animator.Play("Player_Shute");
+        State = CharState.Player_Shute;
+    }
+    public void Sit()
+    {
+        if (cantStand == false && isGrounded == true)
+        {
+            // animator.Play("Player_Sit_Idle");
+            State = CharState.Player_Sit_Idle;
+            crouching = true;
+        }
+        else
+        {
+            crouching = false;
+        }
+    }
+    public CharState State
+    {
+        get { return (CharState)animator.GetInteger("State"); }//перезапись значеня положения
+        set { animator.SetInteger("State", (int)value); }//передача значения положения в аниматор
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.name == "Twins")
+        {
+            Destroy(gameObject, 0.001f);
+            //transform.position = new Vector3(spawnX, spawnY, transform.position.z);
+        }
+
+        plaform = GameObject.FindGameObjectWithTag("MovePlatform").transform;//определям персонажа
+       
+            if (plaform)
+            {
+                this.transform.parent = collision.transform;
+            }
+            else
+            {
+                this.transform.parent = null;
+            }
+        
+        
+
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        plaform = GameObject.FindGameObjectWithTag("MovePlatform").transform;//определям персонажа
+        if (plaform)
+        {
+            this.transform.parent = null;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.name == "DieCollider")
+        {
+            GameOver.GameIsDeath = true;
+        }
+    }
+
+    }
+public enum CharState//перечисление возможных состояний игрока
+{
+    Player_Idle,
+    Player_Run,
+    Player_Jump,
+    Player_Shute,
+    Player_Sit,
+    Player_Sit_Idle,
+    Player_Clime
+
+}
