@@ -1,0 +1,35 @@
+public class Shoot : MonoBehaviour
+{
+    public Transform firePoint;//считывает положение точки выстрела
+
+    public GameObject bullet;
+    private float rate = 2.0F;//частота стрельбы
+
+    SpriteRenderer sprite;//отвечает за работу с картинкой например отображение
+
+    private Bullet bullet1;
+   
+
+    private void Start()
+    {//ссылки на компоненты
+        sprite = GetComponent<SpriteRenderer>();
+       
+      //  bullet1 = Resources.Load<Bullet>();//подгружаем ссылку на пулю из папки
+        InvokeRepeating("Shootable", rate, rate);//использование карутины для стрельбы
+
+    }
+
+    // Update is called once per frame
+   
+    public void Shootable()
+    {
+        //Instantiate(bullet, firePoint.position,firePoint.rotation);
+        Vector3 position = transform.position; position.y += 0.8F;//определяем позицию создания пули
+        GameObject newBullet = Instantiate(bullet, position, bullet.transform.rotation) as GameObject;//создание пули в сцене
+
+       // newBullet.Parent = firePoint1;//сообщаем что у новой пули родитель текущей обьект игрок
+       // newBullet.Direction = newBullet.transform.right;//задаем направление пулу в соответствии с направлением 
+
+    }
+    //transform.right * (sprite.flipX ? -1.0F : 1.0F)
+}
