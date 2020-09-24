@@ -1,0 +1,42 @@
+public class Bullet : MonoBehaviour
+{
+    
+    [SerializeField]
+    int demeg;//переменная для нанесения урона монстру
+
+    [SerializeField]
+    Transform monsterCheck;
+
+    private float speed = 10.0F;//скорость движения пули
+    private Vector3 direction;//переменная для определения движения пули
+
+    private GameObject parent;//обозначение родительского обьекта запустившего пулю
+    public GameObject Parent { set { parent = value; } get { return parent; } }//обозначение родителей
+
+
+    public Vector3 Direction { set { direction = value; } }//свойство для доступо к полю определяющему направление пули (из вне, от player)
+
+    private SpriteRenderer sprite;//ссылка на компонент SpriteRenderer
+    public Color Color//метод для изменеия цвета пули
+    {
+        set { sprite.color = value; }//записывает в sprite передоваемый цвет
+    }
+    private void Awake()//метод для получения ссылки
+    {
+        sprite = GetComponent<SpriteRenderer>();
+    }
+    private void Start()
+    {
+        Destroy(gameObject, 1.4F);//уничтожение пули через определеный промежуток времени
+    }
+    private void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);//движение пули
+        if (Physics2D.Linecast(transform.position, monsterCheck.position, 1 << LayerMask.NameToLayer("Monster")))//проверяем пулю на столкновенние с монстром
+        {
+            Destroy(gameObject);//если пуля сталкнулась с монстро то она уничтажается
+        }
+    }
+  
+
+}
