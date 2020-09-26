@@ -1,0 +1,59 @@
+public class SelectionClass : MonoBehaviour
+{
+    public List<GameObject> qestions;//список хранения вопросов
+    public bool rndQestPos;
+    public bool rndAnswrPos;//отвечают за рандомное расположение кнопок, логические переменные
+    public string quizName;//выбор скции
+    public int correct;//хранение информации о верных ответах
+
+    public MainClass mainClass;//главный класс
+    public int curQest;//вопрос который задан на данныей момент
+
+    private void Start()
+    {
+        if (rndQestPos == true)//рандомное расположение кнопок
+        {
+            for (int i = 0; i < qestions.Count; i++)
+            {
+                int j = Random.Range(0, qestions.Count);
+                GameObject tmp = qestions[i];
+                qestions[i] = qestions[j];
+                qestions[j] = tmp;
+            }
+        }
+        qestions[curQest].SetActive(true);
+        mainClass.UpdaeStats();
+    }
+    public void Answer(Button but)//верно ли выбрана кнопка
+    {
+        //Debug.Log(but.name);
+        StartCoroutine(AnswerCoroutine(but.name));
+
+    }
+    public IEnumerator AnswerCoroutine(string butName)
+    {
+        qestions[curQest].SetActive(false);//отключаем квест активный на дынный момент
+        int i = butName == "correct" ? 0 : 1;//теренарный оператор для проверки веоно или н верно
+        correct += i == 0 ? 1 : 0;//прибавления значения к correct
+
+        mainClass.winOrLose[i].SetActive(true);
+        yield return new WaitForSeconds(1);
+        mainClass.winOrLose[i].SetActive(false);
+        curQest++;
+
+        mainClass.UpdaeStats();
+        if (curQest < qestions.Count)//проверка на наличие вопросов, переход на следующий
+        {
+            qestions[curQest].SetActive(true);
+            //обновление статистики в главном классе
+            
+        }
+        else
+        {
+            //вопросы закончились переходим в главное меню выбора категорий
+            mainClass.FinishFanc();
+        }
+
+    }
+
+}
