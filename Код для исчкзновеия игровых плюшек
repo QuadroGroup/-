@@ -1,0 +1,20 @@
+public class Crow : MonoBehaviour
+{
+    Rigidbody2D rd;
+   public  float speed ;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        rd = GetComponent<Rigidbody2D>();
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Vector2 vel = rd.velocity;
+        vel.x = 1 * speed;
+        rd.velocity = vel;
+    }
+}
