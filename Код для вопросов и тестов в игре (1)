@@ -1,0 +1,41 @@
+
+public class AnswerClass : MonoBehaviour
+{
+    public List<GameObject> Buttons;//кнопки
+    public List<string> buttonDest;//информация выводимая на кнопку
+    public string qestDesc;//влпрос
+   public Text qestObj;//переменная для текста ввопроса
+    List<Vector3> vct = new List<Vector3>();//позиция кнопок
+
+    public void Start()
+    {
+        StartCoroutine(Started());
+    }
+    private IEnumerator Started()
+    {
+
+        // qestObj.text = qestDesc;//обращение напрямую к тексту
+        //yield return new WaitForSeconds(0.15f);
+        transform.GetComponentInChildren<Text>().text = qestDesc;
+
+        for (int i = 0; i < Buttons.Count; i++)//случайная сортировка кнопок
+        {
+            Buttons[i].GetComponentInChildren<Text>().text = buttonDest[i];
+            vct.Add(Buttons[i].transform.localPosition);//рандомные позиции, сохраненяет позицию во вреемя прогрузки
+            Buttons[i].SetActive(false);
+        }
+
+        for (int i = 0; i < Buttons.Count; i++)
+        {
+            yield return new WaitForSeconds(0.05f);//задержка появления нопки
+            int j = Random.Range(0, vct.Count);//случайная сортировка
+            Buttons[i].transform.localPosition = vct[j];
+            vct.RemoveAt(j);
+        }
+        for (int i = 0; i < Buttons.Count; i++)
+        {
+            Buttons[i].SetActive(true);
+        }
+    }
+
+}
