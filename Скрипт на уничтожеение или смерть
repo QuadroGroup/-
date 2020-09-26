@@ -1,0 +1,14 @@
+public class DestroyScripte : MonoBehaviour
+{
+    [SerializeField]
+    float Time;
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        PlayerControler character = collision.GetComponent<PlayerControler>();//находим игрока
+        if (character)
+        {
+           
+            Destroy(gameObject, Time);
+        }
+    }
+}
