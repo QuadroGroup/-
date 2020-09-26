@@ -1,0 +1,73 @@
+public class Monster : MonoBehaviour
+{
+    [SerializeField]
+    int health;//текущие количество жизней
+    [SerializeField]
+    Transform bulletCheck;
+
+    Material mathBlink;//материал при мигании
+    Material mathDefolt;//ориненальный материаль
+    SpriteRenderer SpriteRend;
+
+    public SpriteRenderer sprite;//ссылка на спрайт обьекта
+
+    private UnityEngine.Object explosion;
+
+    //ссылки на нужные методы другим монстрам
+   
+    public void Start()
+    {
+        SpriteRend = GetComponent<SpriteRenderer>();
+        mathBlink = Resources.Load("EnemyBlink", typeof(Material)) as Material;
+        mathDefolt = SpriteRend.material;
+        explosion = Resources.Load("Explosion");
+        sprite = GetComponent<SpriteRenderer>();
+
+    }
+    protected virtual void Update() { }
+
+    protected virtual void OnTriggerEnter2D(Collider2D collider)
+    {
+       
+        if (collider.CompareTag("Bullet"))
+        {
+            Destroy(collider.gameObject);
+            health--;
+            SpriteRend.material = mathBlink;
+            if (health <= 0)
+            {
+                // Destroy(gameObject);
+                KillEnemy();
+            }
+            else
+            {
+                Invoke("ResetMaterial", 0.1f);
+            }
+        }
+
+        PlayerController2 character2 = collider.GetComponent<PlayerController2>();//находим игрока
+        PlayerControler character = collider.GetComponent<PlayerControler>();//находим игрока
+
+        if (character)//если игрок коснулся противника он получает урон
+        {
+            character.health--;//получение урона игрока
+            character.rb.AddForce(transform.up * 6.0F, /*transform.position * -3f,*/ ForceMode2D.Impulse);//отбрасывает игрока при столкновении с вражеским обьектом
+        }
+       else if (character2)//если игрок коснулся противника он получает урон
+        {
+            character2.health--;//получение урона игрока
+            character2.rb.AddForce(transform.up * 6.0F, /*transform.position * -3f,*/ ForceMode2D.Impulse);//отбрасывает игрока при столкновении с вражеским обьектом
+        }
+    }
+    void ResetMaterial()
+    {
+        SpriteRend.material = mathDefolt;
+    }
+
+    void KillEnemy()
+    {
+        GameObject explosionRef = (GameObject)Instantiate(explosion);
+        explosionRef.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        Destroy(gameObject);
+    }
+}
