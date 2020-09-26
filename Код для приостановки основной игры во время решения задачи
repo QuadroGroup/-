@@ -1,0 +1,13 @@
+public class QestionsControler : MonoBehaviour
+{
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        PlayerControler character = collision.GetComponent<PlayerControler>();//находим игрока
+        if (character)
+        {
+             MainClass.GameIsQestions = true;
+            Destroy(gameObject, 1f);
+        }
+    }
+
+}
