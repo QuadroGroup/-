@@ -1,0 +1,91 @@
+public class Patroller : MonoBehaviour
+{
+
+    public float speed;//скорость движение противника
+
+    public int positionOfPatrol;//растояние на котором противник может патрулировать
+    public Transform point;//точка вокруг которой ведется патруль
+    bool movingRight;//переменная отвечающая за направление движения противника
+    public float stopingDistance;
+
+    SpriteRenderer sprite;//ссылка на спрайт обьекта
+
+    Transform player;//определение местоположения персонажа
+
+    //возможные состояния противника поумолчанию ложны
+    bool chill = false;
+    bool angry = false;
+    bool goBack = false;
+    // Start is called before the first frame update
+    void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+        sprite = GetComponent<SpriteRenderer>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Vector2.Distance(transform.position, point.position) < positionOfPatrol && angry == false)
+        {
+            chill = true;
+        }
+        if (Vector2.Distance(transform.position, player.position) < stopingDistance)
+        {
+            angry = true;
+            chill = false;
+            goBack = false; ;
+
+        }
+        if (Vector2.Distance(transform.position, player.position) > stopingDistance)
+        {
+            goBack = true;
+            angry = false;
+        }
+
+        if (chill == true)
+        {
+            Chill();
+        }
+        else if (angry == true)
+        {
+            Angry();
+        }
+        else if (goBack == true)
+        {
+            GoBack();
+        }
+    }
+
+    public void Chill()
+    {
+        if (transform.position.x > point.position.x + positionOfPatrol)
+        {
+            movingRight = false;
+        }
+        else if (transform.position.x < point.position.x - positionOfPatrol)
+        {
+            movingRight = true;
+        }
+        if (movingRight)
+        {
+            transform.position = new Vector2(transform.position.x + speed * Time.deltaTime, transform.position.y);
+            sprite.flipX = true;
+        }
+        else
+        {
+            transform.position = new Vector2(transform.position.x - speed * Time.deltaTime, transform.position.y);
+            sprite.flipX = false;
+        }
+    }
+    void Angry()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
+
+    }
+    void GoBack()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, point.position, speed * Time.deltaTime);
+
+    }
+}
