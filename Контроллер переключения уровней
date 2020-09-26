@@ -1,0 +1,42 @@
+public class LevelControler : MonoBehaviour
+{
+    public static LevelControler instance = null;
+    int sceneIndex;
+    int LevelComplite;
+    // Start is called before the first frame update
+    void Start()
+    {
+        if(instance ==null)
+        {
+            instance = this;
+        }
+        
+
+        sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        LevelComplite = PlayerPrefs.GetInt("LevelComplite");
+    }
+    public void isEndGame()
+    {
+        if ( sceneIndex == 28)
+        {
+            Invoke("LoadMainMenu", 1f);
+        }
+        else
+        {
+            if (LevelComplite < sceneIndex)
+                PlayerPrefs.SetInt("LevelComplite", sceneIndex);
+            Invoke("NextLevel", 1f);
+        }
+    }
+    void NextLevel()
+    {
+        SceneManager.LoadScene(sceneIndex + 1);
+    }
+
+    
+    void LoadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+   
+}
