@@ -1,0 +1,55 @@
+public class GameOver : MonoBehaviour
+{
+    public static bool GameIsDeath = false;//поумолчанию ложь
+    public GameObject DeathMenuUi;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+
+        if (GameIsDeath)
+        {
+            Death();
+        }
+        else
+        {
+            DeathMenuUi.SetActive(false);
+        }
+
+
+    }
+
+    public void Death()
+    {
+        DeathMenuUi.SetActive(true);
+        Time.timeScale = 0f;
+        GameIsDeath = true;
+
+    }
+
+    public void LoadMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+        GameIsDeath = false;
+    }
+    public void ExitGame()
+    {
+        Time.timeScale = 1f;
+        Application.Quit();
+        GameIsDeath = false;
+    }
+    public void Restart()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 0);
+        GameIsDeath = false;
+    }
+}
