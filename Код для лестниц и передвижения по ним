@@ -1,0 +1,41 @@
+public class StairsControler : MonoBehaviour
+{
+    [SerializeField]
+
+    public Joystick joystick;
+    [SerializeField]
+    float speed;
+
+     void OnTriggerStay2D(Collider2D other)
+    {
+        PlayerControler character = other.GetComponent<PlayerControler>();//находим игрока
+
+        other.GetComponent<Rigidbody2D>().gravityScale = 0;//Когда игрок находитсся на лестница гравитация ровняется 0
+        if (other.gameObject.CompareTag("Player"))//проверка на пересечение с игроком
+        {
+            if (joystick.Vertical > 0)//движение в верх по лестнице
+            {
+                other.GetComponent<Rigidbody2D>().velocity = new Vector2(0, speed);
+                character.State = CharState.Player_Clime;
+            }
+            else if (joystick.Vertical < 0)//движение вниз по лестнице
+            {
+                other.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -speed);
+                character.State = CharState.Player_Clime;
+            }
+            else //иначе лестница не активна
+            {
+                other.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+            }
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))//проверка на пересечение с игроком
+        {
+            other.GetComponent<Rigidbody2D>().gravityScale = 1;//когда игрек перестает соприкасаться с лестницой гравитация востановливается
+        }
+            
+    }
+}
