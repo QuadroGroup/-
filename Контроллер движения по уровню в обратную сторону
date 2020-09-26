@@ -1,0 +1,32 @@
+public class LevelControlerBack : MonoBehaviour
+{
+    public static LevelControlerBack instance1 = null;
+    int sceneIndex;
+    int LevelCompliteBack;
+    // Start is called before the first frame update
+    void Start()
+    {
+        if (instance1 == null)
+        {
+            instance1 = this;
+        }
+
+
+        sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        LevelCompliteBack = PlayerPrefs.GetInt("LevelCompliteBack");
+    }
+    public void isEndGame()
+    {
+            if (LevelCompliteBack < sceneIndex)
+                PlayerPrefs.SetInt("LevelCompliteBack", sceneIndex);
+            Invoke("BackLevel", 1f);
+        
+    }
+    void BackLevel()
+    {
+        SceneManager.LoadScene(sceneIndex - 1);
+    }
+
+
+   
+}
