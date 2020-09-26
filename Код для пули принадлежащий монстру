@@ -1,0 +1,75 @@
+public class MonsterBullet : MonoBehaviour
+{
+
+
+    [SerializeField]
+    int demeg;//переменная для нанесения урона монстру
+
+    [SerializeField]
+    Transform monsterCheck;
+
+    public float speed = 10.0F;//скорость движения пули
+    private Vector3 direction;//переменная для определения движения пули
+
+    private GameObject parent;//обозначение родительского обьекта запустившего пулю
+    public GameObject Parent { set { parent = value; } get { return parent; } }//обозначение родителей
+
+
+    public Vector3 Direction { set { direction = value; } }//свойство для доступо к полю определяющему направление пули (из вне, от player)
+
+    public SpriteRenderer sprite1;//ссылка на компонент SpriteRenderer
+    public Color Color//метод для изменеия цвета пули
+    {
+        set { sprite1.color = value; }//записывает в sprite передоваемый цвет
+    }
+    private void Awake()//метод для получения ссылки
+    {
+        sprite1 = GetComponent<SpriteRenderer>();
+    }
+    private void Start()
+    {
+        Direction = -transform.right * (sprite1.flipX ? -1.0F : 1.0F);
+        Destroy(gameObject, 1.4F);//уничтожение пули через определеный промежуток времени
+    }
+    private void Update()
+    {
+
+
+        transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);//движение пули
+        if (Physics2D.Linecast(transform.position, monsterCheck.position, 1 << LayerMask.NameToLayer("Ground")))//проверяем пулю на столкновенние с землей
+        {
+            Destroy(gameObject);//если пуля сталкнулась с монстро то она уничтажается
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D collider)//переопределение метода внутри скрипта. Поумолчани с классе монстров монстры погибают от пули
+    {
+        PlayerControler character = collider.GetComponent<PlayerControler>();//находим игрока
+        PlayerController2 character2 = collider.GetComponent<PlayerController2>();//находим игрока
+        Monster monster = collider.GetComponent<Monster>() as Monster;//находим монстра
+       
+        if (monster != null)
+        {
+            if (monster.sprite.flipX)
+            {
+              sprite1.flipX = true;
+                Direction = -transform.right * (sprite1.flipX ? -1.0F : 1.0F);
+            }
+            
+        }
+
+
+
+
+            if (character|| character2)//если этот юнит игрок нанести урон
+        {
+            character.health--;
+            Destroy(gameObject);
+
+
+        }
+
+    }
+
+
+
+}
