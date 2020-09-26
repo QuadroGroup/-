@@ -1,0 +1,40 @@
+public class MoveUpDown : MonoBehaviour
+{
+  
+    float dirY;
+    [SerializeField]
+    float speed;
+
+    [SerializeField]
+    float upPoint;
+    [SerializeField]
+    float downPoint;
+
+    bool moveUp = true;
+
+    void Update()
+    {
+
+        if (transform.position.y < downPoint)
+        {
+            moveUp = false;
+            
+
+        }
+        else if (transform.position.y > upPoint)
+        {
+            moveUp = true;
+          
+        }
+        if (moveUp)
+        {
+            transform.position = new Vector2(transform.position.x , transform.position.y - speed * Time.deltaTime);
+        }
+        else
+        {
+            transform.position = new Vector2(transform.position.x , transform.position.y + speed * Time.deltaTime);
+        }
+    }
+
+
+    }
