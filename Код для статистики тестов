@@ -1,0 +1,103 @@
+public class MainClass : MonoBehaviour
+{
+    public GameObject[] winOrLose;//для отображения провтльго/неправильно
+    public List<SelectionClass> sections;
+    public GameObject sectionBar;//для работы с секциями
+    int curSection;//секция которая выбранна на данный момнт
+
+    public GameObject finishObj;
+    public Text textBar;
+    public GameObject level;
+
+    public static int resect = -1;//переменна для перезагрузки уровня
+
+    public static bool GameIsQestions = false;//поумолчанию ложь
+    public GameObject QestionshMenuUi;
+
+
+    private void Update()
+    {
+        if (GameIsQestions)
+        {
+            Qestions();
+        }
+        else
+        {
+            QestionshMenuUi.SetActive(false);
+        }
+    }
+    public void Restart(Button but)//перезапуск уровня
+    {
+     if (but.name == "fulRestart")
+        {
+            resect = curSection;
+        }
+       // Application.LoadLevel(1);
+    }
+
+    public void Restart1()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 0);
+        GameIsQestions = false;
+    }
+
+    public void LoadMenu()
+    {
+       
+        SceneManager.LoadScene("MainMenu");
+        GameIsQestions = false;
+    }
+
+    private void Qestions()
+    {
+        QestionshMenuUi.SetActive(true);
+        GameIsQestions = true;
+    }
+
+    private void Start()
+    {
+       
+
+        if (resect  != -1)
+        {
+            curSection = resect;
+            resect = -1;
+           
+        }
+       
+
+        }
+
+    public void Next()
+    {
+        if (sections[curSection].correct == 3)
+        {
+            QestionshMenuUi.SetActive(false);
+            GameIsQestions = false;
+        }
+        else
+        {
+          finishObj.transform.GetComponentInChildren<Text>().text = "Поздравляем вы ответили верно на " + sections[curSection].correct + " из " + sections[curSection].qestions.Count + " вопросов." + " ТЫ НЕСМОГ ОТВЕТИТЬ НА ВСЕ ВОПРОСЫ! Дальше не пройти!!";
+            GameOver.GameIsDeath = true;
+        }
+    }
+
+   
+
+    public void UpdaeStats()//информация о прогрессе
+    {
+        textBar.text = "ВЕРНО: " + sections[curSection].correct + " / ВОПРОС № " + sections[curSection].curQest + " из " + sections[curSection].qestions.Count;
+    }
+
+    public void FinishFanc()//уровень пройден
+    {
+        textBar.text = null;//обновляем информацию
+        finishObj.SetActive(true);
+        finishObj.transform.GetComponentInChildren<Text>().text = "Поздравляем вы ответили верно на " + sections[curSection].correct + " из " + sections[curSection].qestions.Count + " вопросов.";
+
+        if (sections[curSection].correct > PlayerPrefs.GetInt("" + curSection))
+        {
+            PlayerPrefs.SetInt("" + curSection, sections[curSection].correct);
+        }
+    }
