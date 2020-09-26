@@ -1,0 +1,19 @@
+public class Heart : MonoBehaviour
+{
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        PlayerControler character = collider.GetComponent<PlayerControler>();
+        PlayerController2 character2 = collider.GetComponent<PlayerController2>();
+
+        if (character)
+        {
+            character.Lives++;
+            Destroy(gameObject);
+        }
+        else if (character2)
+        {
+            character2.Lives++;
+            Destroy(gameObject);
+        }
+    }
+}
