@@ -1,0 +1,25 @@
+public class FolongScripte : MonoBehaviour
+{
+    public float time1;
+    public float time2;
+
+    Rigidbody2D rb;
+    Vector2 currentPosition;
+    // Start is called before the first frame update
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.name.Equals("Player")|| collision.gameObject.name.Equals("Player (2)_0"))
+        {
+            Invoke("FallPlatform", time1);
+            Destroy(gameObject, time2);
+        }
+    }
+    void FallPlatform()
+    {
+        rb.isKinematic = false;
+    }
+}
