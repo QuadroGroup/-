@@ -1,0 +1,9 @@
+public class BackLevel : MonoBehaviour
+{
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+
+        LevelControlerBack.instance1.isEndGame();
+
+    }
+}
